@@ -9,7 +9,6 @@ disp = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
 
 disp.fill(0)
 disp.show()
-#image = Image.new('1', (128, 64))
 width = disp.width
 height = disp.height
 image = Image.new('1', (width, height))
@@ -34,7 +33,6 @@ draw1 = ImageDraw.Draw(image1)
 font = ImageFont.load_default()
 
 s = serial.Serial('/dev/ttyUSB0',9600)
-#print(s.name)
 x=0
 
 for i in range(7):
@@ -45,7 +43,6 @@ for i in range(7):
 	
 
 s.close()
-# Muestra Texto
 disp.image(image1)
 disp.show()
 
