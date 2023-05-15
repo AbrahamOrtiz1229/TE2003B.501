@@ -154,7 +154,7 @@ def main():
     ## Colóca un texto en el fondo centrado
     if pygame.font:
         font = pygame.font.Font(None, 35) # Tamaño de la fuente
-        text = font.render("ERES UN THWOMP, TU MISIÓN: ¡Aplástarlo!", 1, (10, 10, 10))
+        text = font.render("ERES UN THWOMP, TU MISIÓN: ¡Aplastarlo!", 1, (10, 10, 10))
         textpos = text.get_rect(centerx=background.get_width()/2) # Posición del texto
         background.blit(text, textpos)
 
