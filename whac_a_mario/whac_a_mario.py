@@ -183,7 +183,7 @@ def main():
                 going = False
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 going = False
-            elif event.type == MOUSEBUTTONDOWN:S
+            elif event.type == MOUSEBUTTONDOWN:
                 if thwomp.punch(mario):
                     punch_sound.play() # Reproduce el sonido para el golpe en Mario
                     mario.punched()
