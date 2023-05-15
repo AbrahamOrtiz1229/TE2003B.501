@@ -11,7 +11,7 @@ from pygame.locals import *
 
 from pygame import mixer
 
-# Mensajes de alerta de incompatibilidad generados en terminal
+# Mensajes de alerta de incompatibilidad generados en la terminal
 pygame.mixer.init()
 if not pygame.font: print ('Warning, fonts disabled')
 if not pygame.mixer: print ('Warning, sound disabled')
