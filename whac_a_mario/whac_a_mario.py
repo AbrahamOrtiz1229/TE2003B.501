@@ -1,29 +1,29 @@
-#!/usr/bin/env python
+### CÓDIGO: Juego con pygame ###
+### Modificado e implementado por Alejandro Gómez y Abraham Ortiz Castro ###
 """
-This simple example is used for the line-by-line tutorial
-that comes with pygame. It is based on a 'popular' web banner.
-Note there are comments here, but for the full explanation,
-follow along in the tutorial.
-https://github.com/xamox/pygame/tree/master/examples
+Este ejercicio de SoC está basado en un banner web 'popular' modificado
+para cubrir ciertas características solicitadas por la actividad.
 """
 
-
-#Import Modules
+# Importamos los modulos a utilizar a través de la libreria pygame y os
 import os, pygame
 from pygame.locals import *
-#from pygame.compat import geterror
 
 from pygame import mixer
 
+# Mensajes de alerta de incompatibilidad generados en terminal
 pygame.mixer.init()
 if not pygame.font: print ('Warning, fonts disabled')
 if not pygame.mixer: print ('Warning, sound disabled')
 
+# Directivas os para devolver una tupla con dos componentes head y tail (línea 21)
+# y unir varios componentes de ruta (línea 22)
 main_dir = os.path.split(os.path.abspath(__file__))[0]
-data_dir = os.path.join(main_dir, 'C:\chimp_proyect')
+data_dir = os.path.join(main_dir, 'C:\whac_a_mario')
 
 
-#functions to create our resources
+# Funciones para crear los recursos necesarios para el juego a través de las
+# librerias os y pygame
 def load_image(name, colorkey=None):
     fullname = os.path.join(data_dir, name)
     try:
@@ -38,39 +38,39 @@ def load_image(name, colorkey=None):
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
 
-#classes for our game objects
-class Fist(pygame.sprite.Sprite):
-    """moves a clenched fist on the screen, following the mouse"""
+# Clases para nuestros objetos en el juego
+class Thwomp(pygame.sprite.Sprite):
+    """mueve al thwomp sobre la pantalla, siguiendo al ratón"""
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self) #call Sprite initializer
-        self.image, self.rect = load_image('tw.png', -1)
+        pygame.sprite.Sprite.__init__(self) # Llama al inicializador de sprite
+        self.image, self.rect = load_image('tw.png', -1) # Carga nuestro sprite
         self.punching = 0
 
     def update(self):
-        "move the fist based on the mouse position"
-        pos = pygame.mouse.get_pos()
+        "Mueve al thwomp en función de la posición del ratón"
+        pos = pygame.mouse.get_pos() # Obtiene la posición del ratón sobre la pantalla
         self.rect.midtop = pos
         if self.punching:
             self.rect.move_ip(5, 10)
 
     def punch(self, target):
-        "returns true if the fist collides with the target"
+        "Devuelve un valor true si el thwomp aplasta al objetivo"
         if not self.punching:
             self.punching = 1
             hitbox = self.rect.inflate(-5, -5)
             return hitbox.colliderect(target.rect)
 
     def unpunch(self):
-        "called to pull the fist back"
+        "Llamado al thwomp a retornar a su posición inicial sobre el mouse"
         self.punching = 0
 
 
-class Chimp(pygame.sprite.Sprite):
-    """moves a monkey critter across the screen. it can spin the
-       monkey when it is punched."""
+class Mario(pygame.sprite.Sprite):
+    """Mueve un sprite de Mario por la pantalla. El sprite girará cuando el
+       thwomp lo aplaste."""
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self) #call Sprite intializer
-        self.image, self.rect = load_image('mario.png', -1)
+        pygame.sprite.Sprite.__init__(self) # Llamado al intializador de sprite
+        self.image, self.rect = load_image('mario.png', -1) # Carga nuestro sprite
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.topleft = 10, 10
@@ -79,14 +79,18 @@ class Chimp(pygame.sprite.Sprite):
         self.dizzy = 0
 
     def update(self):
-        "walk or spin, depending on the monkeys state"
+        "Actualiza el estado (caminar o girar), según el estado de Mario"
         if self.dizzy:
-            self._spin()
+            self._spin() # Mario gira si es golpeado
         else:
-            self._walk()
+            self._walk() # Mario cammina por la pantalla (estado base)
 
+### MODIFICACIÓN I (Movimiento del sprite)
+# Esta es una de las secciones con mayores modificaciones en contraste con el código
+# base, pues esta vez el sprite deberá moverse por una pantalla de 800x800 en todas
+# direcciones en lugar de solo ir recto de izquierda a derecha
     def _walk(self):
-        "move the monkey across the screen, and turn at the ends"
+        "Mueve a Mario por la pantalla, retornando en los extremos de la misma"
         newpos = self.rect.move((self.move,self.movey))
         if self.rect.left < self.area.left or \
             self.rect.right > self.area.right:
@@ -99,8 +103,10 @@ class Chimp(pygame.sprite.Sprite):
             newpos = self.rect.move((self.move,self.movey))
         self.rect = newpos
 
+#### TERMINA MODIFICACIÓN ####
+
     def _spin(self):
-        "spin the monkey image"
+        "Gira la imagen de Mario"
         center = self.rect.center
         self.dizzy = self.dizzy + 12
         if self.dizzy >= 360:
@@ -112,87 +118,92 @@ class Chimp(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=center)
 
     def punched(self):
-        "this will cause the monkey to start spinning"
+        "Este es el parámetro que determinará que Mario gire o no"
         if not self.dizzy:
             self.dizzy = 1
             self.original = self.image
 
 
 def main():
-    """this function is called when the program starts.
-       it initializes everything it needs, then runs in
-       a loop until the function returns."""
-#Initialize Everything
+    """Esta función es la principal y se hace llamar cuando se inicia el programa.
+       Se encarga de inicializar todo lo que necesita, para después ejecutarse en
+       un bucle hasta que la función retorna."""
+
+# Iniciliza todo
     pygame.init()
+
+    ## Establece las dimensiones de la pantalla e importa los elementos para el
+    ## fondo o background si se desea personalizar (lineas 139 a 142), un fondo
+    ## sólido puede aplicarse en su defecto
     screen = pygame.display.set_mode((800, 800))
-    background = pygame.image.load("C:\\chimp_proyect\\back.png").convert()
+    background = pygame.image.load("C:\\whac_a_mario\\back.png").convert()
     background = pygame.transform.scale(background, (800, 800))
     screen.blit(background, (0, 0))
     pygame.display.flip()
 
+    ## Establece el título de la ventana de la aplicación cuando esta sea generada
     pygame.display.set_caption('Whac-A-MARIO')
-    pygame.mouse.set_visible(0)
+    pygame.mouse.set_visible(0) # El mouse no será visible sobre la pantalla
 
-#Create The Backgound
-    #background = pygame.Surface(screen.get_size())
-    #background = background.convert()
-    #background.fill((250, 250, 250))
+    ## Modifica el ícono que acompaña al título en la ventana de la aplicación, de
+    ## no hacerlo, colocará el ícono por defecto de la ventana de pygame
+    icono = pygame.image.load("C:\\whac_a_mario\\icon.jpg").convert()
+    pygame.display.set_icon(icono)
 
-#Put Text On The Background, Centered
+
+    ## Colóca un texto en el fondo centrado
     if pygame.font:
-        font = pygame.font.Font(None, 40)
+        font = pygame.font.Font(None, 35) # Tamaño de la fuente
         text = font.render("ERES UN THWOMP, TU MISIÓN: ¡Aplástarlo!", 1, (10, 10, 10))
-        textpos = text.get_rect(centerx=background.get_width()/2)
+        textpos = text.get_rect(centerx=background.get_width()/2) # Posición del texto
         background.blit(text, textpos)
 
-#Display The Background
+    ## Permite visualizar el fondo establecido lineas arriba
     screen.blit(background, (0, 0))
     pygame.display.flip()
 
-#Prepare Game Objects
+    ## Prepara los objetos necesarios para hacer funcionar al juego (funciones y
+    ## elementos complementarios)
     clock = pygame.time.Clock()
-    whiff_sound = pygame.mixer.Sound('Thwomp.wav')
-    punch_sound = pygame.mixer.Sound('damage.wav')
-    #
-    # whiff_sound = pygame.mixer.music.play((r'C:\Users\L03038590\Documents\TE2003\mod4_linux_embebido\whiff.wav'))
-    # punch_sound = pygame.mixer.music.play((r'C:\Users\L03038590\Documents\TE2003\mod4_linux_embebido\punch.wav'))
-    chimp = Chimp()
-    fist = Fist()
-    allsprites = pygame.sprite.RenderPlain((fist, chimp))
+    whiff_sound = pygame.mixer.Sound('Thwomp.wav') # Importa un elemento de sonido .wav
+    punch_sound = pygame.mixer.Sound('damage.wav') # Importa un elemento de sonido .wav
+    mario = Mario() # Constructores para la clase Mario
+    thwomp = Thwomp() # Constructores para la clase Thwomp
+    allsprites = pygame.sprite.RenderPlain((thwomp, mario)) # Crea los sprites
 
 
-#Main Loop
+   ## Loop Principal (Main Loop)
     going = True
     while going:
         clock.tick(60)
 
-        #Handle Input Events
+        # Gestión de eventos de entrada
         for event in pygame.event.get():
             if event.type == QUIT:
                 going = False
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 going = False
-            elif event.type == MOUSEBUTTONDOWN:
-                if fist.punch(chimp):
-                    punch_sound.play() #punch
-                    chimp.punched()
+            elif event.type == MOUSEBUTTONDOWN:S
+                if thwomp.punch(mario):
+                    punch_sound.play() # Reproduce el sonido para el golpe en Mario
+                    mario.punched()
                 else:
-                    whiff_sound.play() #miss
+                    whiff_sound.play() # Reproduce el sonido para el Thwomp (fallar)
             elif event.type == MOUSEBUTTONUP:
-                fist.unpunch()
+                thwomp.unpunch()
 
         allsprites.update()
 
-        #Draw Everything
+        # Dibuja todos los elementos
         screen.blit(background, (0, 0))
         allsprites.draw(screen)
         pygame.display.flip()
 
     pygame.quit()
 
-#Game Over
+## Se cierra la ventana y, por tanto, el juego
 
 
-#this calls the 'main' function when this script is executed
+# Esto llama a la función 'main' cuando se ejecuta este script
 if __name__ == '__main__':
     main()
